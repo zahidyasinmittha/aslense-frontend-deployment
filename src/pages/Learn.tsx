@@ -16,10 +16,10 @@ import {
 } from "lucide-react";
 import VideoPlayer from "../components/VideoPlayer";
 import { useAuth } from "../contexts/AuthContext";
-import { learnAPI, videosAPI } from '../services/api';
+import { learnAPI, BASE_URL } from '../services/api';
 
 const Learn: React.FC = () => {
-  const baseUrl = import.meta.env.VITE_BACKEND_BASEURL;
+  const baseUrl = BASE_URL;
   const { user, token, makeAuthenticatedRequest } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState("Alphabet");
   const [selectedWord, setSelectedWord] = useState<any>(null);
@@ -92,12 +92,7 @@ const Learn: React.FC = () => {
     category: string;
     word: string;
   }
-   
-  interface VideosResponse {
-  videos: VideoFromApi[];
-  total: number;
-  page: number;
-}
+
 
   const [currentWords, setCurrentWords] = useState<Video[]>([]);
   const [filteredWords, setFilteredWords] = useState<Video[]>([]);
