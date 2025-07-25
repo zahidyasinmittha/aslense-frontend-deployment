@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
+import { userAPI } from '../services/api';
 
 // ==================== INTERFACES ====================
 
@@ -55,24 +56,20 @@ const Dashboard: React.FC = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const headers = {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      };
-
       // Fetch dashboard data (includes progress)
-      const dashboardResponse = await fetch('http://localhost:8000/user/dashboard', { headers });
-      if (dashboardResponse.ok) {
-        const dashboardData = await dashboardResponse.json();
-        setProgress(dashboardData.progress);
-        setRecentPredictions(dashboardData.recent_predictions || []);
-      }
+      const dashboardResponse = await userAPI.getDashboard();
+      const dashboardData = dashboardResponse.data as any;
+      setProgress(dashboardData.progress);
+      setRecentPredictions(dashboardData.recent_predictions || []);
 
       // Fetch achievements (if endpoint exists)
-      const achievementsResponse = await fetch('http://localhost:8000/user/achievements', { headers });
-      if (achievementsResponse.ok) {
-        const achievementsData = await achievementsResponse.json();
-        setAchievements(achievementsData);
+      try {
+        const achievementsResponse = await userAPI.getAchievements();
+        const achievementsData = achievementsResponse.data;
+        setAchievements(achievementsData as any);
+      } catch (error) {
+        // Achievements endpoint might not exist, ignore error
+        console.log('Achievements endpoint not available');
       }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);

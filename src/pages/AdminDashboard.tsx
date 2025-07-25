@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { adminAPI } from '../services/api';
+import { adminAPI, contactAPI, pslAPI } from '../services/api';
 
 interface AdminStats {
   totalUsers: number;
@@ -208,25 +208,11 @@ const AdminDashboard: React.FC = () => {
 
       // Fetch contact messages and stats
       try {
-        const contactResponse = await fetch('/api/v1/contact/admin/messages', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        if (contactResponse.ok) {
-          const contactData = await contactResponse.json();
-          setContactMessages(contactData);
-        }
+        const contactResponse = await contactAPI.getMessages(0, 50);
+        setContactMessages(contactResponse.data as ContactMessage[]);
 
-        const contactStatsResponse = await fetch('/api/v1/contact/admin/stats', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        if (contactStatsResponse.ok) {
-          const contactStatsData = await contactStatsResponse.json();
-          setContactStats(contactStatsData);
-        }
+        const contactStatsResponse = await contactAPI.getStats();
+        setContactStats(contactStatsResponse.data as ContactStats);
       } catch (error) {
         console.error('Error fetching contact data:', error);
       }
@@ -357,14 +343,9 @@ const AdminDashboard: React.FC = () => {
 
   const markMessageAsRead = async (messageId: number) => {
     try {
-      const response = await fetch(`/api/v1/contact/admin/messages/${messageId}/mark-read`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const response = await contactAPI.markAsRead(messageId);
       
-      if (response.ok) {
+      if (response.status === 200) {
         setContactMessages(contactMessages.map(msg => 
           msg.id === messageId ? { ...msg, status: 'read' } : msg
         ));
@@ -378,16 +359,9 @@ const AdminDashboard: React.FC = () => {
 
   const markMessageAsReplied = async (messageId: number, adminNotes: string = '') => {
     try {
-      const response = await fetch(`/api/v1/contact/admin/messages/${messageId}/mark-replied`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ admin_notes: adminNotes }),
-      });
+      const response = await contactAPI.markAsReplied(messageId, adminNotes);
       
-      if (response.ok) {
+      if (response.status === 200) {
         setContactMessages(contactMessages.map(msg => 
           msg.id === messageId ? { ...msg, status: 'replied', admin_notes: adminNotes } : msg
         ));
@@ -403,14 +377,9 @@ const AdminDashboard: React.FC = () => {
     if (!confirm('Are you sure you want to delete this contact message?')) return;
     
     try {
-      const response = await fetch(`/api/v1/contact/admin/messages/${messageId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const response = await contactAPI.deleteMessage(messageId);
       
-      if (response.ok) {
+      if (response.status === 200) {
         setContactMessages(contactMessages.filter(msg => msg.id !== messageId));
         showNotification('success', 'Contact message deleted');
       }
@@ -439,49 +408,29 @@ const AdminDashboard: React.FC = () => {
         setPslLoadingMore(true);
       }
       
-      const params = new URLSearchParams({
-        skip: ((page - 1) * 20).toString(),
-        limit: '20'
-      });
+      const params = {
+        skip: (page - 1) * 20,
+        limit: 20,
+        search: pslSearchTerm || undefined,
+        difficulty: pslDifficultyFilter || undefined,
+        is_active: pslStatusFilter !== 'all' ? pslStatusFilter === 'active' : undefined,
+      };
       
-      // Add search parameter if exists
-      if (pslSearchTerm) {
-        params.append('search', pslSearchTerm);
-      }
+      const response = await pslAPI.getAllAdmin(params);
+      const data = response.data as PSLAlphabetEntry[];
       
-      // Add filter parameters if exists
-      if (pslDifficultyFilter) {
-        params.append('difficulty', pslDifficultyFilter);
-      }
-      
-      if (pslStatusFilter !== 'all') {
-        params.append('is_active', pslStatusFilter === 'active' ? 'true' : 'false');
-      }
-      
-      const response = await fetch(`/api/v1/psl-alphabet/admin/all?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        
-        if (append && page > 1) {
-          // Append new entries for infinite scroll
-          setPslEntries(prev => [...prev, ...data]);
-          setFilteredPslEntries(prev => [...prev, ...data]);
-        } else {
-          // Replace entries for initial load or refresh
-          setPslEntries(data);
-          setFilteredPslEntries(data);
-        }
-        
-        // Check if there are more entries to load
-        setPslHasMore(data.length === 20);
+      if (append && page > 1) {
+        // Append new entries for infinite scroll
+        setPslEntries(prev => [...prev, ...data]);
+        setFilteredPslEntries(prev => [...prev, ...data]);
       } else {
-        showNotification('error', 'Failed to fetch PSL alphabet entries');
+        // Replace entries for initial load or refresh
+        setPslEntries(data);
+        setFilteredPslEntries(data);
       }
+      
+      // Check if there are more entries to load
+      setPslHasMore(data.length === 20);
     } catch (error) {
       console.error('Error fetching PSL entries:', error);
       showNotification('error', 'Error fetching PSL alphabet entries');
@@ -504,27 +453,18 @@ const AdminDashboard: React.FC = () => {
 
   const handleCreatePsl = async () => {
     try {
-      const response = await fetch('/api/v1/psl-alphabet/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(pslFormData)
-      });
+      const response = await pslAPI.create(pslFormData);
 
-      if (response.ok) {
+      if (response.status === 200 || response.status === 201) {
         showNotification('success', 'PSL alphabet entry created successfully');
         setShowPslModal(false);
         resetPslForm();
         fetchPslEntries();
-      } else {
-        const error = await response.json();
-        showNotification('error', error.detail || 'Failed to create entry');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating PSL entry:', error);
-      showNotification('error', 'Error creating PSL alphabet entry');
+      const errorMessage = error.response?.data?.detail || 'Error creating PSL alphabet entry';
+      showNotification('error', errorMessage);
     }
   };
 
@@ -532,28 +472,19 @@ const AdminDashboard: React.FC = () => {
     if (!editingPslEntry) return;
 
     try {
-      const response = await fetch(`/api/v1/psl-alphabet/${editingPslEntry.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(pslFormData)
-      });
+      const response = await pslAPI.update(editingPslEntry.id, pslFormData);
 
-      if (response.ok) {
+      if (response.status === 200) {
         showNotification('success', 'PSL alphabet entry updated successfully');
         setShowPslModal(false);
         setEditingPslEntry(null);
         resetPslForm();
         fetchPslEntries();
-      } else {
-        const error = await response.json();
-        showNotification('error', error.detail || 'Failed to update entry');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating PSL entry:', error);
-      showNotification('error', 'Error updating PSL alphabet entry');
+      const errorMessage = error.response?.data?.detail || 'Error updating PSL alphabet entry';
+      showNotification('error', errorMessage);
     }
   };
 
@@ -563,43 +494,31 @@ const AdminDashboard: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`/api/v1/psl-alphabet/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await pslAPI.delete(id);
 
-      if (response.ok) {
+      if (response.status === 200) {
         showNotification('success', 'PSL alphabet entry deleted successfully');
         fetchPslEntries();
-      } else {
-        showNotification('error', 'Failed to delete entry');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting PSL entry:', error);
-      showNotification('error', 'Error deleting PSL alphabet entry');
+      const errorMessage = error.response?.data?.detail || 'Error deleting PSL alphabet entry';
+      showNotification('error', errorMessage);
     }
   };
 
   const togglePslStatus = async (id: number) => {
     try {
-      const response = await fetch(`/api/v1/psl-alphabet/${id}/toggle-status`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await pslAPI.toggleStatus(id);
 
-      if (response.ok) {
+      if (response.status === 200) {
         showNotification('success', 'Entry status updated successfully');
         fetchPslEntries();
-      } else {
-        showNotification('error', 'Failed to update entry status');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating PSL entry status:', error);
-      showNotification('error', 'Error updating entry status');
+      const errorMessage = error.response?.data?.detail || 'Error updating entry status';
+      showNotification('error', errorMessage);
     }
   };
 

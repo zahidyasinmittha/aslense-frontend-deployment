@@ -4,8 +4,8 @@ import {
   Timer, BarChart3, Video, RefreshCw, Trophy, User, 
   Wifi, Search, Upload
 } from 'lucide-react';
-import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+import { practiceAPI, API_CONFIG, WebSocketAPI } from '../services/api';
 
 interface Prediction {
   word: string;
@@ -159,7 +159,7 @@ const Practice: React.FC = () => {
   // Load available words
   const loadAvailableWords = useCallback(async () => {
     try {
-      const response = await axios.get(`${baseUrl}/practice/available-words`);
+      const response = await practiceAPI.getAvailableWords();
       setAvailableWords((response.data as any).words || []);
     } catch (error) {
       console.error('Error loading available words:', error);
@@ -718,12 +718,7 @@ const Practice: React.FC = () => {
       formData.append('target_word', targetWord);
       formData.append('model_type', selectedModel);
       
-      const response = await axios.post(`${baseUrl}/practice/predict-video`, formData, {
-        headers: { 
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await practiceAPI.predictVideo(formData);
       
       handlePredictionResult(response.data as PredictionResult);
     } catch (error: any) {
