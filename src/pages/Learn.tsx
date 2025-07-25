@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import  api  from "../services/api";
 import {
   Play,
   X,
@@ -140,7 +140,7 @@ const Learn: React.FC = () => {
 
       setLoading(true);
       try {
-        const res = await axios.get<VideosResponse>(
+        const res = await api.get<VideosResponse>(
           `${baseUrl}/learn/videos?category=${selectedCategory}&page=${page}&limit=20`
         );
         const apiVideos = res.data?.videos || [];
@@ -221,7 +221,7 @@ const Learn: React.FC = () => {
       if (searchTerm || difficultyFilter !== "all") {
         setLoading(true);
         try {
-          const res = await axios.get<VideosResponse>(`${baseUrl}/learn/search`, {
+          const res = await api.get<VideosResponse>(`${baseUrl}/learn/search`, {
             params: {
               query: searchTerm || "",
               difficulty: difficultyFilter,
