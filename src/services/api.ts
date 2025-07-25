@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 // Get base URL from environment variables
-const BASE_URL = 'https://d3b3a54e8742.ngrok-free.app';
+const BASE_URL = 'https://db12be503aa8.ngrok-free.app';
 const WS_URL = BASE_URL.replace('http', 'ws');
 
 // Create axios instance with default configuration
