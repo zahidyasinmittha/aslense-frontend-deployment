@@ -671,7 +671,7 @@ const AdminDashboard: React.FC = () => {
       )}
       {/* Header */}
       <header className="bg-white shadow-lg border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl py-4 mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center">
               <div className="flex items-center space-x-4">
@@ -694,7 +694,7 @@ const AdminDashboard: React.FC = () => {
             <div className="flex items-center space-x-4">
               <Link
                 to="/csv"
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300 flex items-center space-x-2 shadow-md"
+                className="px-6 py-3 hidden lg:block bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300 flex items-center space-x-2 shadow-md"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
@@ -703,7 +703,7 @@ const AdminDashboard: React.FC = () => {
               </Link>
               <button
                 onClick={() => navigate('/dashboard')}
-                className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-all duration-300"
+                className="px-6 py-3 hidden md:block bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-all duration-300"
               >
                 <span className="font-medium">← Back to Dashboard</span>
               </button>
@@ -725,7 +725,7 @@ const AdminDashboard: React.FC = () => {
 
         {/* Tab Navigation */}
         <div className="bg-white rounded-lg shadow-lg mb-12 border border-gray-200">
-          <nav className="flex space-x-1 p-3">
+          <nav className="flex flex-wrap space-x-1 p-3">
             {[
               { id: 'overview', label: 'Overview', icon: '📊', color: 'blue' },
               { id: 'users', label: 'User Management', icon: '👥', color: 'green' },

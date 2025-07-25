@@ -1040,7 +1040,7 @@ const Practice: React.FC = () => {
                 <div className="relative bg-black">
                   <video
                     ref={videoRef}
-                    className="w-full h-120 object-cover"
+                    className="w-full h-[50vh] sm:h-[60vh] md:h-[50vh] lg:h-[50vh] object-cover"
                     autoPlay
                     muted
                     playsInline
