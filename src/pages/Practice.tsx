@@ -1040,7 +1040,7 @@ const Practice: React.FC = () => {
                 <div className="relative bg-black">
                   <video
                     ref={videoRef}
-                    className="w-full h-[50vh] sm:h-[60vh] md:h-[50vh] lg:h-[50vh] object-cover"
+                    className="w-full h-[60vh] sm:h-[60vh] md:h-[50vh] lg:h-[70vh] object-cover"
                     autoPlay
                     muted
                     playsInline
@@ -1182,7 +1182,7 @@ const Practice: React.FC = () => {
                       <video
                         src={videoPreview}
                         controls
-                        className="w-full h-120 object-contain bg-black"
+                        className="w-full h-[60vh] sm:h-[60vh] md:h-[50vh] lg:h-[70vh] object-cover"
                         controlsList="nodownload"
                       />
                       <div className="absolute top-3 left-3">
