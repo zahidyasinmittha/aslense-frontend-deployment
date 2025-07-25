@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 // Get base URL from environment variables
-const BASE_URL = import.meta.env.VITE_BACKEND_BASEURL || 'http://localhost:8000';
+const BASE_URL = 'https://d3b3a54e8742.ngrok-free.app';
 const WS_URL = BASE_URL.replace('http', 'ws');
 
 // Create axios instance with default configuration
