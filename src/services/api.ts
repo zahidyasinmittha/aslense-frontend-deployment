@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 // Get base URL from environment variables
-const BASE_URL = 'https://db12be503aa8.ngrok-free.app';
+const BASE_URL = "https://litigation-nations-signed-comparison.trycloudflare.com";
 const WS_URL = BASE_URL.replace('http', 'ws');
 
 // Create axios instance with default configuration
