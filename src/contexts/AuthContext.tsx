@@ -59,7 +59,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:8000/auth/login', {
+      const response = await fetch('https://d3b3a54e8742.ngrok-free.app/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
