@@ -5,7 +5,8 @@ import {
   Wifi, Search, Upload
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { practiceAPI, API_CONFIG, WebSocketAPI } from '../services/api';
+import { practiceAPI } from '../services/api';
+import { BASE_URL } from '../services/api';
 
 interface Prediction {
   word: string;
@@ -38,7 +39,7 @@ interface LivePredictionMessage {
 }
 
 const Practice: React.FC = () => {
-  const baseUrl = import.meta.env.VITE_BACKEND_BASEURL || 'http://localhost:8000';
+  const baseUrl = BASE_URL;
   const wsUrl = baseUrl.replace('http', 'ws');
   const { user, token, makeAuthenticatedRequest } = useAuth();
   

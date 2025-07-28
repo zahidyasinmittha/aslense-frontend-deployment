@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { translationSessionManager } from '../services/translationSessionManager';
 import { authAPI } from '../services/api';
+import {BASE_URL} from '../services/api';
 
 export interface User {
   id: number;
@@ -123,7 +124,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     try {
-      const response = await fetch('http://localhost:8000/auth/refresh', {
+      const response = await fetch(`${BASE_URL}/auth/refresh`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
