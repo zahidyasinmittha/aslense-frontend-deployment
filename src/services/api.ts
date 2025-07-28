@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 // Get base URL from environment variables
-export const BASE_URL = "https://coupons-commissioner-records-ee.trycloudflare.com";
+export const BASE_URL = "https://patterns-wr-worse-thank.trycloudflare.com";
 const WS_URL = BASE_URL.replace('http', 'ws');
 
 // Create axios instance with default configuration
